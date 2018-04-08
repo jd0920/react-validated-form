@@ -2,12 +2,12 @@ import ContextManager from './ContextManager'
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import fieldValidator from 'validator'
+import { FormContext } from './Form'
 
 class ValidatedFormField extends Component {
   componentWillMount () {
     const { formName } = this.props
     this.validate = this.validate.bind(this)
-    this._context = ContextManager.getContext({name: formName}).context
   }
 
   componentDidMount () {
