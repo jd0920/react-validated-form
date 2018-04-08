@@ -63,7 +63,7 @@ class ValidatedFormField extends Component {
 
   render () {
     return (
-      <input type='text' ref={elem => (this.formElement = elem)} />
+      <input type='text' placeholder={this.props.placeholder} ref={elem => (this.formElement = elem)} />
     )
   }
 }
