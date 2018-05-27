@@ -31,10 +31,9 @@ class ValidatedForm extends React.Component {
 
   validateAndSubmit () {
     const fields = Array.from(this._registeredFields)
-    let hasInvalidFields = fields.some(field => typeof field[1].validator() === 'string')
-
-    if (hasInvalidFields) { throw new ErrFormFieldsInvalid() }
-
+    const validationResults = fields.map(field => field[1].validator())
+    const invalidFields = validationResults.filter(error => error)
+    if (invalidFields.length > 0) { return }
     const aggregatedValues = fields.map(field => ({[field[0]]: field[1].getValue()}))
     this.props.onSubmit(aggregatedValues)
   }
