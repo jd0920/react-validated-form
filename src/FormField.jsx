@@ -1,18 +1,26 @@
-import ContextManager from './ContextManager'
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import fieldValidator from 'validator'
 import { FormContext } from './Form'
+import DefaultInput from './DefaultInput'
 
+class ValidatedFormFieldProvider extends Component {
+  render () {
+    return (
+      <FormContext.Consumer>
+        {(context) => <ValidatedFormField context={context} {...this.props} />}
+      </FormContext.Consumer>
+    )
+  }
+}
 class ValidatedFormField extends Component {
   componentWillMount () {
-    const { formName } = this.props
     this.validate = this.validate.bind(this)
   }
 
   componentDidMount () {
     const { name } = this.props
-    const { registerField } = this._context
+    const { registerField } = this.props.context
     registerField({
       name,
       validator: this.validate.bind(this),
@@ -21,8 +29,7 @@ class ValidatedFormField extends Component {
   }
 
   componentWillUnmount () {
-    const { name } = this.props
-    const { unregisterField } = this._context
+    const { name, context: {unregisterField} } = this.props
     unregisterField({name})
   }
 
@@ -62,9 +69,9 @@ class ValidatedFormField extends Component {
   }
 
   render () {
-    return (
-      <input type='text' placeholder={this.props.placeholder} ref={elem => (this.formElement = elem)} />
-    )
+    return this.props.render
+      ? this.props.render(...this.props)
+      : <DefaultInput ref={elem => (this.formElement = elem)} {...this.props} />
   }
 }
 
@@ -79,4 +86,4 @@ ValidatedFormField.propTypes = {
   options: PropTypes.array
 }
 
-export default ValidatedFormField
+export default ValidatedFormFieldProvider

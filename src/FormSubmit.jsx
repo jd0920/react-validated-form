@@ -1,15 +1,12 @@
-import ContextManager from './ContextManager'
 import React, { Component } from 'react'
+import { FormContext } from './Form'
 
 class ValidatedFormTrigger extends Component {
-  componentWillMount () {
-    const { formName } = this.props
-    this._context = ContextManager.getContext({name: formName}).context
-  }
   render () {
-    const validateAndSubmit = this._context.validateAndSubmit
     return (
-      React.cloneElement(this.props.children, {onClick: validateAndSubmit})
+      <FormContext.Consumer>
+        {(context) => React.cloneElement(this.props.children, {onClick: context.validateAndSubmit})}
+      </FormContext.Consumer>
     )
   }
 }
