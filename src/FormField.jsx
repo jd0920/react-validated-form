@@ -1,5 +1,5 @@
+/* eslint-disable no-return-assign */
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import fieldValidator from 'validator'
 import { FormContext } from './Form'
 
@@ -13,10 +13,10 @@ class ValidatedFormFieldProvider extends Component {
   }
 }
 class ValidatedFormField extends Component {
-  componentWillMount () {
-    this.validate = this.validate.bind(this)
+  constructor () {
+    super()
+    this.state = {isValid: true, errorMessage: ''}
   }
-
   componentDidMount () {
     const { registerField } = this.props.context
     const renderPropData = this.props.render()
@@ -35,8 +35,10 @@ class ValidatedFormField extends Component {
   }
 
   validate () {
-    const { validator, type, required } = this.props
+    const {props: {type, required}} = this.props.render()
+    const { validator } = this.props
     const value = this.input.value
+
     const isEmpty = () => value === ''
 
     if (typeof validator === 'function') {
@@ -69,20 +71,16 @@ class ValidatedFormField extends Component {
     return this.input.value
   }
 
-  getRef (input) {
-    this.input = input
-  }
-
   render () {
     const componentToRender = this.props.render()
 
-    return React.cloneElement(componentToRender, {inputRef: this.getRef()})
+    return React.cloneElement(componentToRender, {
+      inputRef: (input) => this.input = input,
+      onChange: this.onChangeHandler.bind(this),
+      isValid: this.state.isValid,
+      errorMessage: this.state.errorMessage
+    })
   }
-}
-
-ValidatedFormField.propTypes = {
-  render: PropTypes.func.required,
-  validator: PropTypes.func
 }
 
 export default ValidatedFormFieldProvider
