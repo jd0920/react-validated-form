@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import fieldValidator from 'validator'
 import { FormContext } from './Form'
-import DefaultInput from './DefaultInput'
 
 class ValidatedFormFieldProvider extends Component {
   render () {
@@ -19,23 +18,25 @@ class ValidatedFormField extends Component {
   }
 
   componentDidMount () {
-    const { name } = this.props
     const { registerField } = this.props.context
+    const renderPropData = this.props.render()
+
     registerField({
-      name,
+      name: renderPropData.props.name,
       validator: this.validate.bind(this),
       getValue: this.getValue.bind(this)
     })
   }
 
   componentWillUnmount () {
-    const { name, context: {unregisterField} } = this.props
-    unregisterField({name})
+    const renderPropData = this.props.render()
+    const { context: {unregisterField} } = this.props
+    unregisterField({name: renderPropData.props.name})
   }
 
   validate () {
     const { validator, type, required } = this.props
-    const value = this.formElement.value
+    const value = this.input.value
     const isEmpty = () => value === ''
 
     if (typeof validator === 'function') {
@@ -65,25 +66,23 @@ class ValidatedFormField extends Component {
   }
 
   getValue () {
-    return this.formElement.value
+    return this.input.value
+  }
+
+  getRef (input) {
+    this.input = input
   }
 
   render () {
-    return this.props.render
-      ? this.props.render(...this.props)
-      : <DefaultInput ref={elem => (this.formElement = elem)} {...this.props} />
+    const componentToRender = this.props.render()
+
+    return React.cloneElement(componentToRender, {inputRef: this.getRef()})
   }
 }
 
 ValidatedFormField.propTypes = {
-  name: PropTypes.string.isRequired,
-  type: PropTypes.oneOf(['text', 'password', 'email', 'select']).isRequired,
-  placeholder: PropTypes.string,
-  required: PropTypes.bool,
-  onChange: PropTypes.func,
-  onBlur: PropTypes.func,
-  validator: PropTypes.func,
-  options: PropTypes.array
+  render: PropTypes.func.required,
+  validator: PropTypes.func
 }
 
 export default ValidatedFormFieldProvider
